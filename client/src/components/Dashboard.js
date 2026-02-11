@@ -16,7 +16,6 @@ const Dashboard = () => {
 
     return (
         <div style={{ padding: '10px' }}>
-            {/* Current Week Stats */}
             <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
                 <div style={cardStyle}>
                     <h3 style={{ margin: '0 0 10px 0', color: '#4a5568', fontSize: '16px' }}>This Week's Revenue</h3>
@@ -32,7 +31,6 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Weekly Revenue Chart */}
             <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', marginBottom: '30px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                 <h3 style={{ marginTop: '0', color: '#2d3748' }}>Weekly Revenue Trend (Last 8 Weeks)</h3>
                 <ResponsiveContainer width="100%" height={250}>
@@ -52,7 +50,6 @@ const Dashboard = () => {
                 </ResponsiveContainer>
             </div>
 
-            {/* Top Selling Products Chart */}
             <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                 <h3 style={{ marginTop: '0', color: '#2d3748' }}>Top Selling Products</h3>
                 <ResponsiveContainer width="100%" height={300}>

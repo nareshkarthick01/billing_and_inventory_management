@@ -5,11 +5,11 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware
+
 app.use(cors());
 app.use(express.json());
 
-// --- DATABASE CONNECTION ---
+
 const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -18,20 +18,18 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
-// Explicitly test the connection on startup
+
 pool.connect((err, client, release) => {
     if (err) {
         console.error('❌ DATABASE CONNECTION ERROR:', err.message);
         console.error('Check your .env file credentials and ensure PostgreSQL is running.');
     } else {
         console.log('✅ Successfully connected to PostgreSQL database');
-        release(); // Release the client back to the pool
+        release(); 
     }
 });
 
-// --- 1. PRODUCT ROUTES ---
 
-// Get all products
 app.get('/api/products', async (req, res) => {
     try {
         const allProducts = await pool.query("SELECT * FROM products ORDER BY name ASC");
@@ -42,7 +40,7 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-// Add a new product
+
 app.post('/api/products', async (req, res) => {
     try {
         const { name, sku, price, stock_quantity, min_stock_level } = req.body;
@@ -57,7 +55,7 @@ app.post('/api/products', async (req, res) => {
     }
 });
 
-// Update a product (price and stock)
+
 app.put('/api/products/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -65,7 +63,6 @@ app.put('/api/products/:id', async (req, res) => {
         
         console.log(`📝 Updating product ${id}:`, { price, stock_quantity });
         
-        // Validation
         if (price === undefined || stock_quantity === undefined) {
             return res.status(400).json({ error: "Price and stock_quantity are required" });
         }
@@ -96,7 +93,7 @@ app.put('/api/products/:id', async (req, res) => {
     }
 });
 
-// Delete a product
+
 app.delete('/api/products/:id', async (req, res) => {
     const client = await pool.connect();
     try {
@@ -104,9 +101,9 @@ app.delete('/api/products/:id', async (req, res) => {
         
         console.log(`🗑️ Attempting to delete product ${id}`);
         
-        await client.query('BEGIN'); // Start transaction
+        await client.query('BEGIN'); 
         
-        // First check if product exists
+        
         const checkProduct = await client.query(
             "SELECT * FROM products WHERE id = $1",
             [id]
@@ -119,7 +116,7 @@ app.delete('/api/products/:id', async (req, res) => {
         
         const productName = checkProduct.rows[0].name;
         
-        // Check if product is referenced in any invoices
+        
         const invoiceCheck = await client.query(
             "SELECT COUNT(*) as count FROM invoice_items WHERE product_id = $1",
             [id]
@@ -130,15 +127,14 @@ app.delete('/api/products/:id', async (req, res) => {
             console.log(`⚠️ Warning: Product "${productName}" has been used in ${invoiceCount} invoice(s).`);
             console.log(`   Removing product references from invoice items...`);
             
-            // Set product_id to NULL in invoice_items to maintain invoice history
-            // but remove the foreign key relationship
+          
             await client.query(
                 "UPDATE invoice_items SET product_id = NULL WHERE product_id = $1",
                 [id]
             );
         }
         
-        // Now delete the product
+      
         await client.query("DELETE FROM products WHERE id = $1", [id]);
         
         await client.query('COMMIT');
@@ -156,16 +152,16 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
-// --- 2. BILLING & CHECKOUT ROUTE ---
+
 
 app.post('/api/checkout', async (req, res) => {
     const client = await pool.connect();
     try {
         const { customerName, items, subtotal, tax, grandTotal } = req.body;
 
-        await client.query('BEGIN'); // Start Transaction
+        await client.query('BEGIN');
 
-        // Insert Invoice
+        
         const invoiceRes = await client.query(
             `INSERT INTO invoices (invoice_number, customer_name, subtotal, tax_amount, grand_total) 
              VALUES ($1, $2, $3, $4, $5) RETURNING id`,
@@ -173,9 +169,9 @@ app.post('/api/checkout', async (req, res) => {
         );
         const invoiceId = invoiceRes.rows[0].id;
 
-        // Process each item in the cart
+      
         for (const item of items) {
-            // Deduct Stock
+          
             const updateStock = await client.query(
                 'UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2 AND stock_quantity >= $1 RETURNING name',
                 [item.quantity, item.id]
@@ -185,7 +181,7 @@ app.post('/api/checkout', async (req, res) => {
                 throw new Error(`Insufficient stock for ${item.name}`);
             }
 
-            // Record Line Item
+          
             await client.query(
                 `INSERT INTO invoice_items (invoice_id, product_id, quantity, unit_price, line_total) 
                  VALUES ($1, $2, $3, $4, $5)`,
@@ -206,18 +202,16 @@ app.post('/api/checkout', async (req, res) => {
     }
 });
 
-// --- 3. ANALYTICS ROUTE ---
-
 app.get('/api/analytics', async (req, res) => {
     try {
-        // Get current week's revenue (starting from Monday)
+       
         const currentWeekRevenue = await pool.query(
             `SELECT COALESCE(SUM(grand_total), 0) as revenue, COUNT(id) as total_sales 
              FROM invoices 
              WHERE sale_date >= date_trunc('week', CURRENT_TIMESTAMP)`
         );
 
-        // Get last 8 weeks revenue data for visualization
+      
         const weeklyRevenue = await pool.query(
             `SELECT 
                 date_trunc('week', sale_date)::date as week_start,
@@ -256,11 +250,11 @@ app.get('/api/analytics', async (req, res) => {
     }
 });
 
-// --- 4. PURCHASE HISTORY ROUTE ---
+
 
 app.get('/api/purchase-history', async (req, res) => {
     try {
-        const limit = req.query.limit || 10; // Default to 10 recent purchases
+        const limit = req.query.limit || 10; 
         
         const purchaseHistory = await pool.query(
             `SELECT 
@@ -285,7 +279,6 @@ app.get('/api/purchase-history', async (req, res) => {
     }
 });
 
-// --- START SERVER ---
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);

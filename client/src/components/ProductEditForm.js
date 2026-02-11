@@ -109,7 +109,6 @@ const ProductEditForm = ({ onProductUpdated }) => {
                 </div>
             )}
 
-            {/* Product Selection */}
             <div style={styles.formGroup}>
                 <label style={styles.label}>Search & Select Product</label>
                 <input
@@ -133,7 +132,6 @@ const ProductEditForm = ({ onProductUpdated }) => {
                 </select>
             </div>
 
-            {/* Show form only when product is selected */}
             {selectedProduct && (
                 <form onSubmit={handleSubmit} style={styles.form}>
                     <div style={styles.infoBox}>

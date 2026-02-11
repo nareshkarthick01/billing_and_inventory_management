@@ -24,11 +24,10 @@ const BillingSystem = () => {
         fetchProducts();
     }, []);
 
-    // --- PDF GENERATION FUNCTION ---
     const generatePDF = (invoiceId, cartItems, totals) => {
         const doc = new jsPDF();
 
-        // 1. Add Business Header (Left Side) - JJ Electronics in BOLD
+       
         doc.setFontSize(16);
         doc.setFont(undefined, 'bold');
         doc.setTextColor(40);
@@ -39,22 +38,22 @@ const BillingSystem = () => {
         doc.text("Contact: +91 78457 78404", 14, 28);
         doc.text("GSTIN: 22AAAAA0000A1Z5", 14, 34);
 
-        // INVOICE Title (Right Top Corner)
+      
         doc.setFontSize(22);
         doc.setFont(undefined, 'bold');
         doc.setTextColor(40);
         doc.text("INVOICE", 196, 20, { align: "right" });
 
-        // 2. Add Invoice Details
+      
         doc.setDrawColor(200);
-        doc.line(14, 40, 196, 40); // Horizontal line
+        doc.line(14, 40, 196, 40); 
         doc.setFontSize(10);
         doc.setFont(undefined, 'normal');
         doc.text(`Invoice Number: INV-${invoiceId}`, 14, 48);
         doc.text(`Customer: ${customerName}`, 14, 55);
         doc.text(`Date: ${new Date().toLocaleString()}`, 14, 62);
 
-        // 3. Add Items Table
+    
         const tableColumn = ["Product", "Unit Price", "Quantity", "Total"];
         const tableRows = cartItems.map(item => [
             item.name,
@@ -68,10 +67,10 @@ const BillingSystem = () => {
             head: [tableColumn],
             body: tableRows,
             theme: 'striped',
-            headStyles: { fillColor: [44, 62, 80] } // Professional Dark Blue
+            headStyles: { fillColor: [44, 62, 80] } 
         });
 
-        // 4. Add Summary (Subtotal, Tax, Grand Total)
+    
         const finalY = doc.lastAutoTable.finalY + 10;
         doc.setFontSize(12);
         doc.text(`Subtotal: Rs. ${totals.subtotal.toFixed(2)}`, 140, finalY);
@@ -81,12 +80,12 @@ const BillingSystem = () => {
         doc.setFont(undefined, 'bold');
         doc.text(`Grand Total: Rs. ${totals.grandTotal.toFixed(2)}`, 140, finalY + 15);
 
-        // 5. Footer - Updated Message
+      
         doc.setFontSize(10);
         doc.setFont(undefined, 'normal');
         doc.text("Thank you for your purchase!", 105, finalY + 30, { align: "center" });
 
-        // 6. Download File
+        
         doc.save(`Invoice_${invoiceId}.pdf`);
     };
 
@@ -144,7 +143,7 @@ const BillingSystem = () => {
             console.log('✅ Checkout response:', response.data);
 
             if (response.data.success) {
-                // TRIGGER PDF GENERATION
+               
                 try {
                     generatePDF(response.data.invoiceId, cart, { subtotal, tax, grandTotal });
                     alert(`Success! Invoice #${response.data.invoiceId} generated and downloaded.`);
