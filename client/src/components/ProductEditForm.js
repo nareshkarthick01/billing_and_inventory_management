@@ -11,7 +11,6 @@ const ProductEditForm = ({ onProductUpdated }) => {
     const [message, setMessage] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Fetch all products on component mount
     useEffect(() => {
         fetchProducts();
     }, []);
@@ -25,13 +24,11 @@ const ProductEditForm = ({ onProductUpdated }) => {
         }
     };
 
-    // Filter products based on search
     const filteredProducts = products.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.sku.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // When a product is selected from dropdown
     const handleProductSelect = (e) => {
         const productId = parseInt(e.target.value);
         const product = products.find(p => p.id === productId);
@@ -49,12 +46,10 @@ const ProductEditForm = ({ onProductUpdated }) => {
         }
     };
 
-    // Handle form input changes
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Submit update to backend
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -68,7 +63,6 @@ const ProductEditForm = ({ onProductUpdated }) => {
             const stockToAddValue = parseInt(formData.stockToAdd || 0);
             const newStockQuantity = selectedProduct.stock_quantity + stockToAddValue;
 
-            // Validation
             if (isNaN(priceValue) || priceValue < 0) {
                 setMessage('❌ Please enter a valid price.');
                 return;
@@ -90,15 +84,12 @@ const ProductEditForm = ({ onProductUpdated }) => {
             
             setMessage(`✅ Success! ${selectedProduct.name} has been updated.`);
             
-            // Reset form
             setSelectedProduct(null);
             setFormData({ price: '', stockToAdd: 0 });
             setSearchTerm('');
             
-            // Refresh products list
             fetchProducts();
             
-            // Trigger refresh in parent component
             if (onProductUpdated) {
                 onProductUpdated();
             }

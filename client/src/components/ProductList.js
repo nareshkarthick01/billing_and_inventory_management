@@ -4,8 +4,6 @@ import axios from 'axios';
 const ProductList = ({ refreshTrigger }) => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    
-    // Search and Filter States
     const [searchTerm, setSearchTerm] = useState('');
     const [showLowStockOnly, setShowLowStockOnly] = useState(false);
     const [deleteMessage, setDeleteMessage] = useState('');
@@ -23,9 +21,8 @@ const ProductList = ({ refreshTrigger }) => {
 
     useEffect(() => {
         fetchProducts();
-    }, [refreshTrigger]); // Re-fetch when refreshTrigger changes
+    }, [refreshTrigger]);
 
-    // Handle product deletion
     const handleDelete = async (productId, productName) => {
         if (!window.confirm(`Are you sure you want to delete "${productName}"?\n\nThis action cannot be undone.`)) {
             return;
@@ -34,23 +31,16 @@ const ProductList = ({ refreshTrigger }) => {
         try {
             await axios.delete(`http://localhost:5000/api/products/${productId}`);
             setDeleteMessage(`✅ "${productName}" has been deleted successfully.`);
-            
-            // Clear message after 3 seconds
             setTimeout(() => setDeleteMessage(''), 3000);
-            
-            // Refresh the product list
             fetchProducts();
         } catch (error) {
             console.error('Error deleting product:', error);
             const errorMsg = error.response?.data?.error || 'Failed to delete product.';
             setDeleteMessage(`❌ ${errorMsg}`);
-            
-            // Clear error message after 5 seconds
             setTimeout(() => setDeleteMessage(''), 5000);
         }
     };
 
-    // --- LOGIC: Filter the list based on Search and Stock Status ---
     const filteredProducts = products.filter(product => {
         const matchesSearch = 
             product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -67,14 +57,12 @@ const ProductList = ({ refreshTrigger }) => {
 
     return (
         <div style={styles.container}>
-            {/* Delete Message Alert */}
             {deleteMessage && (
                 <div style={deleteMessage.includes('✅') ? styles.successAlert : styles.errorAlert}>
                     {deleteMessage}
                 </div>
             )}
 
-            {/* Search and Filter Bar */}
             <div style={styles.filterBar}>
                 <input 
                     type="text" 

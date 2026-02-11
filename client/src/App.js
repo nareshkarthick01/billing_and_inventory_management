@@ -6,18 +6,15 @@ import BillingSystem from './components/BillingSystem';
 import Dashboard from './components/Dashboard';
 
 function App() {
-  // Navigation State: 'dashboard', 'inventory', or 'billing'
   const [view, setView] = useState('dashboard');
   const [refreshProducts, setRefreshProducts] = useState(0);
 
-  // Function to trigger product list refresh
   const handleProductAdded = () => {
     setRefreshProducts(prev => prev + 1);
   };
 
   return (
     <div style={styles.appContainer}>
-      {/* --- TOP NAVIGATION BAR --- */}
       <nav style={styles.navbar}>
         <div style={styles.logo}>
           <span role="img" aria-label="electronics" style={styles.logoIcon}>⚡</span>
@@ -45,10 +42,8 @@ function App() {
         </div>
       </nav>
 
-      {/* --- MAIN CONTENT AREA --- */}
       <main style={styles.mainContent}>
         
-        {/* VIEW 1: DASHBOARD (Analytics) */}
         {view === 'dashboard' && (
           <div style={styles.card}>
             <h2 style={styles.cardTitle}>Business Overview</h2>
@@ -56,7 +51,6 @@ function App() {
           </div>
         )}
 
-        {/* VIEW 2: INVENTORY MANAGEMENT */}
         {view === 'inventory' && (
           <div style={styles.inventoryLayout}>
             <div style={styles.card}>
@@ -74,7 +68,6 @@ function App() {
           </div>
         )}
 
-        {/* VIEW 3: BILLING & POS */}
         {view === 'billing' && (
           <div style={styles.card}>
             <h2 style={styles.cardTitle}>🧾 Billing Terminal</h2>
@@ -85,7 +78,6 @@ function App() {
 
       </main>
 
-      {/* --- FOOTER --- */}
       <footer style={styles.footer}>
         <p>© 2026 Inventory & Billing Management System | Built for Performance</p>
       </footer>
@@ -93,7 +85,6 @@ function App() {
   );
 }
 
-// --- MODERN UI STYLES ---
 const styles = {
   appContainer: {
     fontFamily: "'Inter', 'Segoe UI', sans-serif",
